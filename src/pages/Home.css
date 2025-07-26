@@ -328,8 +328,8 @@
 @media (max-width: 768px) {
   .hero-scroll {
     position: absolute;
-    bottom: 15px;
-    left: 50%;
+    bottom: 0px;
+    left: 40%;
     transform: translateX(-50%) scale(1.3);
     z-index: 10;
   }
