@@ -21,36 +21,67 @@ const MeetUs = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handlePhoneChange = (e) => {
+    const value = e.target.value;
+    // Only allow digits and limit to 10 characters
+    const numericValue = value.replace(/\D/g, '').slice(0, 10);
+    setFormData(prev => ({
+      ...prev,
+      phone: numericValue
+    }));
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Simulate form submission
-    const submitPromise = new Promise((resolve) => {
-      setTimeout(() => {
-        resolve();
-      }, 1500);
-    });
+    // Create promise for API call
+    const submitPromise = async () => {
+      try {
+        const response = await fetch('http://localhost:3001/api/send-visit-email', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(formData)
+        });
+        
+        const result = await response.json();
+        
+        if (!response.ok) {
+          throw new Error(result.error || 'Failed to send email');
+        }
+        
+        return result;
+      } catch (error) {
+        console.error('Error sending visit email:', error);
+        throw error;
+      }
+    };
 
     toast.promise(
-      submitPromise,
+      submitPromise(),
       {
-        loading: 'Submitting your details...',
-        success: '🌱 Thank you! Our team will contact you soon!',
-        error: 'Something went wrong. Please try again.',
+        loading: 'Sending your visit request...',
+        success: '🌱 Thank you! We\'ve received your request and will contact you soon!',
+        error: (err) => `Failed to send request: ${err.message}`,
       },
       {
         style: {
           minWidth: '300px',
         },
         success: {
-          duration: 4000,
+          duration: 5000,
           icon: '🌿',
+        },
+        error: {
+          duration: 4000,
+          icon: '❌',
         },
       }
     );
 
-    // Reset form after submission
-    submitPromise.then(() => {
+    // Reset form after successful submission
+    submitPromise().then(() => {
       setFormData({
         name: '',
         email: '',
@@ -60,6 +91,9 @@ const MeetUs = () => {
         message: '',
         visitType: 'consultation'
       });
+    }).catch(() => {
+      // Don't reset form on error so user can retry
+      console.log('Form not reset due to submission error');
     });
   };
 
@@ -80,15 +114,15 @@ const MeetUs = () => {
             </p>
             <div className="hero-features">
               <div className="feature-item">
-                <span className="feature-icon">📍</span>
+                <span className="meet-us-feature-icon">📍</span>
                 <span>Visit Our Nursery</span>
               </div>
               <div className="feature-item">
-                <span className="feature-icon">💬</span>
+                <span className="meet-us-feature-icon">💬</span>
                 <span>Expert Consultation</span>
               </div>
               <div className="feature-item">
-                <span className="feature-icon">🌱</span>
+                <span className="meet-us-feature-icon">🌱</span>
                 <span>Plant Care Guidance</span>
               </div>
             </div>
@@ -110,19 +144,19 @@ const MeetUs = () => {
                 <div className="info-card">
                   <div className="info-icon">📍</div>
                   <h3>Visit Our Nursery</h3>
-                  <p>Kadiyam Village, Andhra Pradesh<br />The Plant Capital of India</p>
+                  <p>Veeravaram, Kadiyam Road<br />Kadiyam Mandalam, Rajahmundry<br />Pin Code: 533126</p>
                 </div>
                 
                 <div className="info-card">
                   <div className="info-icon">📞</div>
                   <h3>Call Us</h3>
-                  <p>+91 98765 43210<br />Mon-Sun: 8:00 AM - 6:00 PM</p>
+                  <p>+91 8341090735<br />+91 7569777592<br />Mon-Sun: 8:00 AM - 6:00 PM</p>
                 </div>
                 
                 <div className="info-card">
                   <div className="info-icon">📧</div>
                   <h3>Email Us</h3>
-                  <p>info@greengivers.com<br />support@greengivers.com</p>
+                  <p>greengiversnursery@gmail.com<br />For inquiries and support</p>
                 </div>
                 
                 <div className="info-card">
@@ -171,15 +205,22 @@ const MeetUs = () => {
                 <div className="form-row">
                   <div className="form-group">
                     <label htmlFor="phone">Phone Number *</label>
-                    <input
-                      type="tel"
-                      id="phone"
-                      name="phone"
-                      value={formData.phone}
-                      onChange={handleInputChange}
-                      required
-                      placeholder="Enter your phone number"
-                    />
+                    <div className="phone-input-container">
+                      <span className="phone-prefix">+91</span>
+                      <input
+                        type="tel"
+                        id="phone"
+                        name="phone"
+                        value={formData.phone}
+                        onChange={handlePhoneChange}
+                        required
+                        placeholder="Enter 10 digit number"
+                        maxLength="10"
+                        pattern="[0-9]{10}"
+                        className="phone-input"
+                      />
+                    </div>
+                    <small className="phone-help">Enter exactly 10 digits (e.g., 9876543210)</small>
                   </div>
                   
                   <div className="form-group">

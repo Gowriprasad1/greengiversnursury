@@ -641,23 +641,39 @@
   margin-top: 20px;
 }
 
-.contact-btn, .close-btn, .submit-btn {
+.contact-btn, .close-btn, .submit-btn, .cancel-btn {
   padding: 12px 24px;
-  border: none;
+  border: 2px solid transparent;
   border-radius: 8px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
+  font-size: 14px;
+  min-width: 120px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
 }
 
 .contact-btn, .submit-btn {
   background: linear-gradient(135deg, #4CAF50, #45a049);
   color: white;
+  border-color: #4CAF50;
 }
 
 .contact-btn:hover, .submit-btn:hover {
-  background: #f5f5f5;
-  border-color: #4CAF50;
+  background: linear-gradient(135deg, #45a049, #388e3c);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(76, 175, 80, 0.3);
+}
+
+.contact-btn:disabled, .submit-btn:disabled {
+  background: #cccccc;
+  color: #666;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 
 .category-btn.active {
@@ -666,16 +682,42 @@
   color: white;
 }
 
-.close-btn {
+.close-btn, .cancel-btn {
   background: #f5f5f5;
   color: #333;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 12px 24px;
+  font-weight: 600;
+  cursor: pointer;
   transition: all 0.3s ease;
   flex: 1;
   min-width: 100px;
+  font-size: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
 }
 
-.close-btn:hover {
+.close-btn:hover, .cancel-btn:hover {
   background: #e0e0e0;
+  border-color: #d0d0d0;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.close-btn:disabled, .cancel-btn:disabled {
+  background: #f9f9f9;
+  color: #999;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.close-btn:active, .cancel-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
 }
 
 /* Contact Form Styles */
@@ -721,6 +763,101 @@
 
 .form-group input[type="number"] {
   max-width: 120px;
+}
+
+/* Form Validation Styles */
+.form-group input.error,
+.form-group textarea.error {
+  border-color: #e74c3c;
+  background-color: #fdf2f2;
+  box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.1);
+}
+
+.form-group input.error:focus,
+.form-group textarea.error:focus {
+  border-color: #e74c3c;
+  box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.2);
+}
+
+.error-message {
+  display: block;
+  color: #e74c3c;
+  font-size: 12px;
+  margin-top: 5px;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.char-count {
+  display: block;
+  color: #666;
+  font-size: 11px;
+  margin-top: 5px;
+  text-align: right;
+  font-style: italic;
+}
+
+.char-count.warning {
+  color: #f39c12;
+}
+
+.char-count.error {
+  color: #e74c3c;
+}
+
+/* Phone Input Styles */
+.phone-input-container {
+  display: flex;
+  align-items: center;
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  background: #fafafa;
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.phone-input-container:focus-within {
+  border-color: #4CAF50;
+  background: white;
+  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+}
+
+.phone-prefix {
+  background: linear-gradient(135deg, #4CAF50, #2E7D32);
+  color: white;
+  padding: 12px 14px;
+  font-weight: 600;
+  font-size: 14px;
+  border-right: 2px solid #e9ecef;
+  display: flex;
+  align-items: center;
+  min-width: 55px;
+  justify-content: center;
+}
+
+.phone-input {
+  flex: 1;
+  padding: 12px 15px;
+  border: none;
+  background: transparent;
+  font-size: 14px;
+  outline: none;
+}
+
+.phone-input::placeholder {
+  color: #999;
+}
+
+.phone-input.error {
+  background-color: #fdf2f2;
+}
+
+.phone-help {
+  display: block;
+  color: #666;
+  font-size: 11px;
+  margin-top: 5px;
+  font-style: italic;
 }
 
 /* Responsive Design */
@@ -891,7 +1028,8 @@
   }
   
   .contact-btn,
-  .close-btn {
+  .close-btn,
+  .cancel-btn {
     min-width: auto;
     width: 100%;
   }
@@ -950,7 +1088,8 @@
   
   .contact-btn,
   .submit-btn,
-  .close-btn {
+  .close-btn,
+  .cancel-btn {
     padding: 12px 20px;
     font-size: 14px;
     border-radius: 8px;

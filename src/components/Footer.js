@@ -11,8 +11,8 @@ const Footer = () => {
             <p>Wholesale distributor of wide range of plants located at Kadiyam. Your trusted partner for premium quality plants and gardening solutions.</p>
             <div className="social-links">
               <a href="https://www.facebook.com/Greengiversnursery" aria-label="Facebook">📘</a>
-              <a href="#" aria-label="Instagram">📷</a>
-              <a href="#" aria-label="WhatsApp">📱</a>
+              <a href="https://instagram.com/greengiversnursery" aria-label="Instagram">📷</a>
+              <a href="https://wa.me/918341090735" aria-label="WhatsApp">📱</a>
             </div>
           </div>
           
@@ -39,9 +39,9 @@ const Footer = () => {
           
           <div className="footer-section">
             <h4>Contact Info</h4>
-            <p>📍 Kadiyam, Andhra Pradesh, India</p>
-            <p>📞 Contact via Facebook for Wholesale</p>
-            <p>✉️ facebook.com/Greengiversnursery</p>
+            <p>📍 Veeravaram, Kadiyam Road, Kadiyam Mandalam, Rajahmundry - 533126</p>
+            <p>📞 +91 8341090735 | +91 7569777592</p>
+            <p>✉️ greengiversnursery@gmail.com</p>
             <p>🌱 Wide Range of Plants Available</p>
           </div>
         </div>

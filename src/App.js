@@ -8,6 +8,7 @@ import About from './pages/About';
 import AboutNursery from './pages/AboutNursery';
 import Collections from './pages/Collections';
 import MeetUs from './pages/MeetUs';
+import Admin from './pages/Admin';
 import './App.css';
 
 function App() {
@@ -22,6 +23,7 @@ function App() {
             <Route path="/about-nursery" element={<AboutNursery />} />
             <Route path="/collections" element={<Collections />} />
             <Route path="/meet-us" element={<MeetUs />} />
+            <Route path="/admin-tarun" element={<Admin />} />
           </Routes>
         </main>
         <Toaster

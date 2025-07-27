@@ -169,19 +169,19 @@ const AboutNursery = () => {
               </p>
               <div className="quality-features">
                 <div className="quality-feature">
-                  <span className="feature-icon">✅</span>
+                  <span className="n-feature-icon">✅</span>
                   <span>Expert Plant Selection</span>
                 </div>
                 <div className="quality-feature">
-                  <span className="feature-icon">✅</span>
+                  <span className="n-feature-icon">✅</span>
                   <span>Health Certification</span>
                 </div>
                 <div className="quality-feature">
-                  <span className="feature-icon">✅</span>
+                  <span className="n-feature-icon">✅</span>
                   <span>Proper Packaging</span>
                 </div>
                 <div className="quality-feature">
-                  <span className="feature-icon">✅</span>
+                  <span className="n-feature-icon">✅</span>
                   <span>Timely Delivery</span>
                 </div>
               </div>

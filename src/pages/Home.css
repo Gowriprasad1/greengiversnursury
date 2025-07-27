@@ -190,7 +190,7 @@
   align-items: center;
   justify-content: center;
   font-size: 2.5rem;
-  background: linear-gradient(135deg, #4CAF50, #81C784);
+  background: linear-gradient(135deg, #157718, #0ca314);
   color: white;
   box-shadow: 0 10px 20px rgba(76, 175, 80, 0.3);
   position: relative;
@@ -212,7 +212,7 @@
 /* About Preview Section */
 .about-preview {
   background: 
-    linear-gradient(135deg, rgba(102, 126, 234, 0.9), rgba(118, 75, 162, 0.9)),
+    linear-gradient(135deg, rgba(0, 0, 0, 0.9), rgba(118, 75, 162, 0.9)),
     url('https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?ixlib=rb-4.0.3&auto=format&fit=crop&w=2032&q=80') center/cover;
   background-size: cover;
   color: white;

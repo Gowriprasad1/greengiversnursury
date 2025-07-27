@@ -1,23 +1,81 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import './Collections.css';
 
 const Collections = () => {
-  const [activeCategory, setActiveCategory] = useState('all');
-  const [selectedPlant, setSelectedPlant] = useState(null);
+  const [plants, setPlants] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState('all');
   const [showModal, setShowModal] = useState(false);
+  const [selectedPlant, setSelectedPlant] = useState(null);
   const [showContactForm, setShowContactForm] = useState(false);
+  const [contactFormData, setContactFormData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    quantity: 1,
+    message: ''
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formErrors, setFormErrors] = useState({});
 
-  const categories = [
-    { id: 'all', name: 'All Plants', icon: '🌿' },
-    { id: 'indoor', name: 'Indoor Plants', icon: '🏠' },
-    { id: 'outdoor', name: 'Outdoor Plants', icon: '🌳' },
-    { id: 'fruits', name: 'Fruit Plants', icon: '🍎' },
-    { id: 'flowers', name: 'Flowering Plants', icon: '🌺' },
-    { id: 'herbs', name: 'Herbs & Medicinal', icon: '🌱' }
-  ];
+  // Load plants data from API, localStorage, or JSON
+  useEffect(() => {
+    const loadPlantsData = async () => {
+      try {
+        // First try to load from API server (most up-to-date)
+        const response = await fetch('http://localhost:3001/api/plants');
+        if (response.ok) {
+          const data = await response.json();
+          setPlants(data.plants || []);
+          setCategories([
+            { id: 'all', name: 'All Plants', icon: '🌿' },
+            ...data.categories || []
+          ]);
+          return;
+        }
+      } catch (apiError) {
+        console.log('API server not available, trying localStorage...');
+      }
 
-  const plants = [
+      try {
+        // Fallback to localStorage (admin updates when offline)
+        const savedPlants = localStorage.getItem('nursery_plants_data');
+        if (savedPlants) {
+          const savedData = JSON.parse(savedPlants);
+          setPlants(savedData.plants || []);
+          setCategories([
+            { id: 'all', name: 'All Plants', icon: '🌿' },
+            ...savedData.categories || []
+          ]);
+          return;
+        }
+
+        // Final fallback to JSON file
+        const response = await fetch('/data/plants.json');
+        const data = await response.json();
+        setPlants(data.plants || []);
+        setCategories([
+          { id: 'all', name: 'All Plants', icon: '🌿' },
+          ...data.categories || []
+        ]);
+      } catch (error) {
+        console.error('Error loading plants data:', error);
+        // Hardcoded fallback if everything fails
+        setCategories([
+          { id: 'all', name: 'All Plants', icon: '🌿' },
+          { id: 'indoor', name: 'Indoor Plants', icon: '🏠' },
+          { id: 'outdoor', name: 'Outdoor Plants', icon: '🌳' },
+          { id: 'flowering', name: 'Flowering Plants', icon: '🌸' },
+          { id: 'succulents', name: 'Succulents', icon: '🌵' },
+          { id: 'herbs', name: 'Herbs', icon: '🌿' }
+        ]);
+      }
+    };
+    loadPlantsData();
+  }, []);
+
+  const hardcodedPlants = [
     // Indoor Plants
     {
       id: 1,
@@ -290,9 +348,12 @@ const Collections = () => {
     }
   ];
 
-  const filteredPlants = activeCategory === 'all' 
-    ? plants 
-    : plants.filter(plant => plant.category === activeCategory);
+  // Use dynamic plants data or fallback to hardcoded data
+  const allPlants = plants.length > 0 ? plants : hardcodedPlants;
+  
+  const filteredPlants = selectedCategory === 'all' 
+    ? allPlants 
+    : allPlants.filter(plant => plant.category === selectedCategory);
 
   const handleQuickView = (plant) => {
     setSelectedPlant(plant);
@@ -302,14 +363,164 @@ const Collections = () => {
 
   const handleContactForPurchase = (plant) => {
     setSelectedPlant(plant);
-    setShowModal(true);
     setShowContactForm(true);
+    setContactFormData({
+      name: '',
+      email: '',
+      phone: '',
+      quantity: 1,
+      message: ''
+    });
   };
 
   const closeModal = () => {
-    setSelectedPlant(null);
     setShowModal(false);
+    setSelectedPlant(null);
     setShowContactForm(false);
+    setContactFormData({
+      name: '',
+      email: '',
+      phone: '',
+      quantity: 1,
+      message: ''
+    });
+    setFormErrors({});
+    setIsSubmitting(false);
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setContactFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+    
+    // Clear error when user starts typing
+    if (formErrors[name]) {
+      setFormErrors(prev => ({
+        ...prev,
+        [name]: ''
+      }));
+    }
+  };
+
+  const handlePhoneChange = (e) => {
+    const value = e.target.value;
+    // Only allow digits and limit to 10 characters
+    const numericValue = value.replace(/\D/g, '').slice(0, 10);
+    setContactFormData(prev => ({
+      ...prev,
+      phone: numericValue
+    }));
+    
+    // Clear error when user starts typing
+    if (formErrors.phone) {
+      setFormErrors(prev => ({
+        ...prev,
+        phone: ''
+      }));
+    }
+  };
+
+  const validateForm = () => {
+    const errors = {};
+    
+    // Name validation
+    if (!contactFormData.name.trim()) {
+      errors.name = 'Name is required';
+    } else if (contactFormData.name.trim().length < 2) {
+      errors.name = 'Name must be at least 2 characters';
+    } else if (contactFormData.name.trim().length > 50) {
+      errors.name = 'Name must be less than 50 characters';
+    } else if (!/^[a-zA-Z\s]+$/.test(contactFormData.name.trim())) {
+      errors.name = 'Name should only contain letters and spaces';
+    }
+    
+    // Email validation
+    if (!contactFormData.email.trim()) {
+      errors.email = 'Email is required';
+    } else if (contactFormData.email.length > 100) {
+      errors.email = 'Email must be less than 100 characters';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contactFormData.email)) {
+      errors.email = 'Please enter a valid email address';
+    }
+    
+    // Phone validation (optional but if provided, should be exactly 10 digits)
+    if (contactFormData.phone.trim()) {
+      if (contactFormData.phone.length !== 10) {
+        errors.phone = 'Phone number must be exactly 10 digits';
+      } else if (!/^[0-9]{10}$/.test(contactFormData.phone)) {
+        errors.phone = 'Phone number should only contain digits';
+      }
+    }
+    
+    // Quantity validation
+    if (!contactFormData.quantity || contactFormData.quantity < 1) {
+      errors.quantity = 'Quantity must be at least 1';
+    } else if (contactFormData.quantity > 1000) {
+      errors.quantity = 'Quantity must be less than 1000';
+    }
+    
+    // Message validation (optional but if provided, should have reasonable length)
+    if (contactFormData.message.trim() && contactFormData.message.trim().length > 500) {
+      errors.message = 'Message must be less than 500 characters';
+    }
+    
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const handleSubmitPurchaseInquiry = async (e) => {
+    e.preventDefault();
+    
+    // Validate form before submission
+    if (!validateForm()) {
+      toast.error('Please fix the errors in the form', {
+        duration: 4000,
+      });
+      return;
+    }
+    
+    setIsSubmitting(true);
+
+    try {
+      const response = await fetch('http://localhost:3001/api/send-purchase-email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          formData: contactFormData,
+          plantDetails: {
+            name: selectedPlant.name,
+            category: selectedPlant.category,
+            price: selectedPlant.price,
+            image: selectedPlant.image
+          }
+        }),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        toast.success('🌱 Thank you for your inquiry! We will contact you soon!', {
+          duration: 4000,
+          icon: '🌿',
+        });
+        closeModal();
+      } else {
+        toast.error('Failed to send inquiry. Please try again.', {
+          duration: 4000,
+        });
+      }
+    } catch (error) {
+      console.error('Error sending purchase inquiry:', error);
+      toast.error('Network error. Please check your connection and try again.', {
+        duration: 4000,
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -327,7 +538,7 @@ const Collections = () => {
             <p className="page-subtitle">Discover our curated selection of premium plants from Kadiyam</p>
             <div className="hero-stats">
               <div className="stat-item">
-                <span className="stat-number">30+</span>
+                <span className="stat-number">{allPlants.length}+</span>
                 <span className="stat-label">Plant Varieties</span>
               </div>
               <div className="stat-item">
@@ -354,8 +565,8 @@ const Collections = () => {
             {categories.map(category => (
               <button
                 key={category.id}
-                className={`filter-btn ${activeCategory === category.id ? 'active' : ''}`}
-                onClick={() => setActiveCategory(category.id)}
+                className={`filter-btn ${selectedCategory === category.id ? 'active' : ''}`}
+                onClick={() => setSelectedCategory(category.id)}
               >
                 <span className="filter-icon">{category.icon}</span>
                 {category.name}
@@ -485,7 +696,7 @@ const Collections = () => {
             </div>
             <div className="location-badge">
               <span className="location-icon">📍</span>
-              <span>Located in Kadiyam, Andhra Pradesh - The Plant Capital of India</span>
+              <span>Located in Veeravaram, Kadiyam Road, Kadiyam Mandalam, Rajahmundry - 533126</span>
             </div>
           </div>
         </div>
@@ -521,37 +732,105 @@ const Collections = () => {
                 ) : (
                   <>
                     <h2 className="modal-title">Contact Us for {selectedPlant.name}</h2>
-                    <form className="contact-form" onSubmit={(e) => {
-                      e.preventDefault();
-                      toast.success('🌱 Thank you for your inquiry! We will contact you soon!', {
-                        duration: 4000,
-                        icon: '🌿',
-                      });
-                      closeModal();
-                    }}>
+                    <form className="contact-form" onSubmit={handleSubmitPurchaseInquiry}>
                       <div className="form-group">
                         <label htmlFor="name">Full Name *</label>
-                        <input type="text" id="name" name="name" required />
+                        <input 
+                          type="text" 
+                          id="name" 
+                          name="name" 
+                          value={contactFormData.name}
+                          onChange={handleInputChange}
+                          minLength="2"
+                          maxLength="50"
+                          required 
+                          className={formErrors.name ? 'error' : ''}
+                        />
+                        {formErrors.name && <span className="error-message">{formErrors.name}</span>}
                       </div>
                       <div className="form-group">
                         <label htmlFor="email">Email Address *</label>
-                        <input type="email" id="email" name="email" required />
+                        <input 
+                          type="email" 
+                          id="email" 
+                          name="email" 
+                          value={contactFormData.email}
+                          onChange={handleInputChange}
+                          maxLength="100"
+                          required 
+                          className={formErrors.email ? 'error' : ''}
+                        />
+                        {formErrors.email && <span className="error-message">{formErrors.email}</span>}
                       </div>
                       <div className="form-group">
                         <label htmlFor="phone">Phone Number</label>
-                        <input type="tel" id="phone" name="phone" />
+                        <div className="phone-input-container">
+                          <span className="phone-prefix">+91</span>
+                          <input 
+                            type="tel" 
+                            id="phone" 
+                            name="phone" 
+                            value={contactFormData.phone}
+                            onChange={handlePhoneChange}
+                            maxLength="10"
+                            pattern="[0-9]{10}"
+                            placeholder="Enter 10 digit number"
+                            className={`phone-input ${formErrors.phone ? 'error' : ''}`}
+                          />
+                        </div>
+                        {formErrors.phone && <span className="error-message">{formErrors.phone}</span>}
+                        <small className="phone-help">Enter exactly 10 digits (e.g., 9876543210)</small>
                       </div>
                       <div className="form-group">
                         <label htmlFor="quantity">Quantity Needed</label>
-                        <input type="number" id="quantity" name="quantity" min="1" defaultValue="1" />
+                        <input 
+                          type="number" 
+                          id="quantity" 
+                          name="quantity" 
+                          min="1" 
+                          max="1000"
+                          value={contactFormData.quantity}
+                          onChange={handleInputChange}
+                          className={formErrors.quantity ? 'error' : ''}
+                        />
+                        {formErrors.quantity && <span className="error-message">{formErrors.quantity}</span>}
                       </div>
                       <div className="form-group">
                         <label htmlFor="message">Message</label>
-                        <textarea id="message" name="message" rows="4" placeholder="Tell us about your requirements..."></textarea>
+                        <textarea 
+                          id="message" 
+                          name="message" 
+                          rows="4" 
+                          placeholder="Tell us about your requirements..."
+                          value={contactFormData.message}
+                          onChange={handleInputChange}
+                          maxLength="500"
+                          className={formErrors.message ? 'error' : ''}
+                        ></textarea>
+                        {formErrors.message && <span className="error-message">{formErrors.message}</span>}
+                        <small className={`char-count ${
+                          contactFormData.message.length > 450 ? 'error' : 
+                          contactFormData.message.length > 400 ? 'warning' : ''
+                        }`}>
+                          {contactFormData.message.length}/500 characters
+                        </small>
                       </div>
                       <div className="modal-actions">
-                        <button type="submit" className="submit-btn">Send Inquiry</button>
-                        <button type="button" className="close-btn" onClick={closeModal}>Cancel</button>
+                        <button 
+                          type="submit" 
+                          className="submit-btn" 
+                          disabled={isSubmitting}
+                        >
+                          {isSubmitting ? 'Sending...' : 'Send Inquiry'}
+                        </button>
+                        <button 
+                          type="button" 
+                          className="cancel-btn" 
+                          onClick={closeModal}
+                          disabled={isSubmitting}
+                        >
+                          Cancel
+                        </button>
                       </div>
                     </form>
                   </>
