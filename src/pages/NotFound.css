@@ -1,0 +1,245 @@
+.not-found-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  padding: 100px 20px 20px 20px;
+  margin-top: 20px;
+}
+
+.not-found-content {
+  max-width: 800px;
+  text-align: center;
+  background: white;
+  border-radius: 20px;
+  padding: 60px 40px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+}
+
+.not-found-animation {
+  margin-bottom: 40px;
+}
+
+.plant-pot {
+  position: relative;
+  display: inline-block;
+  animation: sway 3s ease-in-out infinite;
+}
+
+.pot {
+  width: 80px;
+  height: 60px;
+  background: linear-gradient(135deg, #8B4513, #A0522D);
+  border-radius: 0 0 40px 40px;
+  margin: 0 auto;
+  position: relative;
+}
+
+.pot::before {
+  content: '';
+  position: absolute;
+  top: -5px;
+  left: -5px;
+  right: -5px;
+  height: 10px;
+  background: #654321;
+  border-radius: 10px;
+}
+
+.plant {
+  position: absolute;
+  top: -30px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.stem {
+  width: 4px;
+  height: 40px;
+  background: #4CAF50;
+  margin: 0 auto;
+  border-radius: 2px;
+}
+
+.leaf {
+  position: absolute;
+  font-size: 24px;
+  animation: leafFloat 2s ease-in-out infinite;
+}
+
+.leaf-1 {
+  top: -10px;
+  left: -15px;
+  animation-delay: 0s;
+}
+
+.leaf-2 {
+  top: -5px;
+  right: -15px;
+  animation-delay: 0.5s;
+}
+
+.leaf-3 {
+  top: 5px;
+  left: -10px;
+  animation-delay: 1s;
+}
+
+@keyframes sway {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(3deg); }
+}
+
+@keyframes leafFloat {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-5px); }
+}
+
+.error-code {
+  font-size: 120px;
+  font-weight: 900;
+  color: #4CAF50;
+  margin: 0;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.error-title {
+  font-size: 32px;
+  color: #333;
+  margin: 20px 0;
+  font-weight: 700;
+}
+
+.error-message {
+  font-size: 18px;
+  color: #666;
+  line-height: 1.6;
+  margin-bottom: 40px;
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.error-actions {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  margin-bottom: 50px;
+  flex-wrap: wrap;
+}
+
+.home-btn, .collections-btn {
+  padding: 15px 30px;
+  border-radius: 12px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.3s ease;
+  min-width: 160px;
+  justify-content: center;
+}
+
+.home-btn {
+  background: linear-gradient(135deg, #4CAF50, #45a049);
+  color: white;
+  border: 2px solid #4CAF50;
+}
+
+.collections-btn {
+  background: transparent;
+  color: #4CAF50;
+  border: 2px solid #4CAF50;
+}
+
+.home-btn:hover {
+  background: linear-gradient(135deg, #45a049, #388e3c);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(76, 175, 80, 0.3);
+}
+
+.collections-btn:hover {
+  background: #4CAF50;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(76, 175, 80, 0.3);
+}
+
+.helpful-links h3 {
+  color: #333;
+  margin-bottom: 20px;
+  font-size: 20px;
+}
+
+.quick-links {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.quick-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: #f8f9fa;
+  color: #666;
+  text-decoration: none;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.quick-link:hover {
+  background: #e9ecef;
+  color: #4CAF50;
+  transform: translateY(-1px);
+}
+
+.btn-icon, .link-icon {
+  font-size: 18px;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .not-found-content {
+    padding: 40px 20px;
+  }
+  
+  .error-code {
+    font-size: 80px;
+  }
+  
+  .error-title {
+    font-size: 24px;
+  }
+  
+  .error-message {
+    font-size: 16px;
+  }
+  
+  .error-actions {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .home-btn, .collections-btn {
+    width: 100%;
+    max-width: 250px;
+  }
+  
+  .quick-links {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .quick-link {
+    width: 100%;
+    max-width: 200px;
+    justify-content: center;
+  }
+}

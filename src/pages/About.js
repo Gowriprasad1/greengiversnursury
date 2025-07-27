@@ -4,13 +4,13 @@ import './About.css';
 const About = () => {
   const teamMembers = [
     {
-      name: 'Rajesh Kumar',
+      name: 'Tarun',
       role: 'Founder & Head Botanist',
       emoji: '👨‍🌾',
-      description: 'With 20+ years of experience in horticulture'
+      description: 'With 10+ years of experience in horticulture'
     },
     {
-      name: 'Priya Sharma',
+      name: 'Satyannarayan',
       role: 'Plant Care Specialist',
       emoji: '👩‍🌾',
       description: 'Expert in indoor and medicinal plants'
@@ -20,12 +20,6 @@ const About = () => {
       role: 'Landscape Designer',
       emoji: '👨‍💼',
       description: 'Creating beautiful garden landscapes'
-    },
-    {
-      name: 'Sunita Devi',
-      role: 'Customer Relations',
-      emoji: '👩‍💼',
-      description: 'Ensuring customer satisfaction always'
     }
   ];
 

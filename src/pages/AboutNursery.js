@@ -3,15 +3,15 @@ import './AboutNursery.css';
 
 const AboutNursery = () => {
   const catalog = [
-    { name: 'Fruit Plants', icon: '🍎', description: 'Fresh fruit trees and plants' },
-    { name: 'Flower Plants', icon: '🌺', description: 'Beautiful flowering varieties' },
-    { name: 'Ornamental Plants', icon: '🌿', description: 'Decorative garden plants' },
-    { name: 'Avenue Trees', icon: '🌳', description: 'Large shade and street trees' },
-    { name: 'Herbal Plants', icon: '🌱', description: 'Medicinal and aromatic herbs' },
-    { name: 'Bonsai & Specialty', icon: '🎋', description: 'Unique miniature trees' },
-    { name: 'Wood Plants', icon: '🌲', description: 'Timber and hardwood trees' },
-    { name: 'Lawn Grass', icon: '🌾', description: 'Various grass varieties' },
-    { name: 'Seeds & Accessories', icon: '🌰', description: 'Seeds, pots, and tools' }
+    { name: 'Avenue Trees', icon: '🌳', description: 'Large shade and street trees', badges: ['Top Selling'] },
+    { name: 'Fruit Plants', icon: '🍎', description: 'Fresh fruit trees and plants', badge: 'Top Trending' },
+    { name: 'Flower Plants', icon: '🌺', description: 'Beautiful flowering varieties', badge: 'Top Trending' },
+    { name: 'Ornamental Plants', icon: '🌿', description: 'Decorative garden plants', badges: ['Top Selling'] },
+    { name: 'Indoor Plants', icon: '🪴', description: 'Perfect for indoor spaces', badge: 'Top Selling' },
+    { name: 'Herbal Plants', icon: '🌱', description: 'Medicinal and aromatic herbs', badge: 'Top Trending' },
+    { name: 'Bonsai & Specialty', icon: '🎋', description: 'Unique miniature trees', badge: 'Top Trending' },
+    { name: 'Wood Plants', icon: '🌲', description: 'Timber and hardwood trees', badge: 'Top Trending' },
+    { name: 'Lawn Grass', icon: '🌾', description: 'Various grass varieties', badge: 'Top Trending' },
   ];
 
   const facilities = [
@@ -123,6 +123,25 @@ const AboutNursery = () => {
           <div className="catalog-grid">
             {catalog.map((item, index) => (
               <div key={index} className="catalog-card">
+                <div className="badges-container">
+                  {item.badges && item.badges.map((badge, badgeIndex) => (
+                    <div key={badgeIndex} className={`catalog-badge ${
+                      badge === 'Top Selling' ? 'badge-selling' : 
+                      badge === 'Top Trending' ? 'badge-trending' : 'badge-default'
+                    } badge-${badgeIndex}`}>
+                      <span className="ribbon-text">
+                        {badge === 'Top Selling' ? 'TOP SELLER' : badge === 'Top Trending' ? 'TRENDING' : badge}
+                      </span>
+                    </div>
+                  ))}
+                  {item.badge && (
+                    <div className={`catalog-badge ${item.badge === 'Top Selling' ? 'badge-selling' : 'badge-trending'}`}>
+                      <span className="ribbon-text">
+                        {item.badge === 'Top Selling' ? 'TOP SELLER' : item.badge === 'Top Trending' ? 'TRENDING' : item.badge}
+                      </span>
+                    </div>
+                  )}
+                </div>
                 <div className="catalog-icon">{item.icon}</div>
                 <h3 className="catalog-title">{item.name}</h3>
                 <p className="catalog-description">{item.description}</p>

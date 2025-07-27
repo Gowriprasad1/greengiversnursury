@@ -5,34 +5,46 @@ import './Home.css';
 const Home = () => {
   const features = [
     {
-      icon: '🌺',
+      icon: '🌳',
+      title: 'Avenue Trees',
+      description: 'Large shade trees perfect for streets and avenues',
+      badges: ['Top Selling']
+    },
+    {
+      icon: '🌸',
       title: 'Flower Plants',
-      description: 'Beautiful flowering plants to brighten your garden'
+      description: 'Beautiful flowering plants to brighten your garden',
+      badges: ['Top Trending']
     },
     {
       icon: '🍎',
       title: 'Fruit Plants',
-      description: 'Fresh fruit trees and plants for your orchard'
+      description: 'Fresh fruit trees and plants for your home garden',
+      badges: ['Top Trending']
     },
     {
-      icon: '🌿',
+      icon: '🪴',
       title: 'Indoor Plants',
-      description: 'Perfect plants for your home and office spaces'
-    },
-    {
-      icon: '🌳',
-      title: 'Outdoor Plants',
-      description: 'Hardy plants for your garden and landscape'
+      description: 'Perfect plants for indoor decoration and air purification',
+      badges: ['Top Selling']
     },
     {
       icon: '🌱',
-      title: 'Medicinal Plants',
-      description: 'Natural healing plants for wellness'
+      title: 'Herbal Plants',
+      description: 'Natural medicinal and aromatic plants',
+      badges: ['Top Trending']
+    },
+    {
+      icon: '🌲',
+      title: 'Outdoor Plants',
+      description: 'Hardy plants for your garden and landscape',
+      badges: ['Top Trending']
     },
     {
       icon: '🎋',
       title: 'Bamboo & Specialty',
-      description: 'Unique bamboo varieties and specialty plants'
+      description: 'Unique bamboo varieties and specialty plants',
+      badges: ['Top Trending']
     }
   ];
 
@@ -85,6 +97,25 @@ const Home = () => {
           <div className="features-grid">
             {features.map((feature, index) => (
               <div key={index} className="feature-card">
+                <div className="badges-container">
+                  {feature.badges && feature.badges.map((badge, badgeIndex) => (
+                    <div key={badgeIndex} className={`feature-badge ${
+                      badge === 'Top Selling' ? 'badge-selling' : 
+                      badge === 'Top Trending' ? 'badge-trending' : 'badge-default'
+                    } badge-${badgeIndex}`}>
+                      <span className="ribbon-text">
+                        {badge === 'Top Selling' ? 'TOP SELLER' : badge === 'Top Trending' ? 'TRENDING' : badge}
+                      </span>
+                    </div>
+                  ))}
+                  {feature.badge && (
+                    <div className={`feature-badge ${feature.badge === 'Top Selling' ? 'badge-selling' : 'badge-trending'}`}>
+                      <span className="ribbon-text">
+                        {feature.badge === 'Top Selling' ? 'TOP SELLER' : feature.badge === 'Top Trending' ? 'TRENDING' : feature.badge}
+                      </span>
+                    </div>
+                  )}
+                </div>
                 <div className="feature-icon">{feature.icon}</div>
                 <h3 className="feature-title">{feature.title}</h3>
                 <p className="feature-description">{feature.description}</p>

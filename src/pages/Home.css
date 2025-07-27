@@ -209,6 +209,86 @@
   line-height: 1.6;
 }
 
+/* Corner Ribbon Feature Badge Styles */
+.badges-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 3;
+  pointer-events: none;
+}
+
+.feature-badge {
+  position: absolute;
+  width: 100px;
+  height: 100px;
+  /* overflow: hidden; */
+  pointer-events: auto;
+  z-index: 4;
+}
+
+.ribbon-text {
+  position: absolute;
+  top: 20px;
+  left: -32px;
+  width: 150px;
+  padding: 8px 0;
+  text-align: center;
+  font-size: 0.65rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: white;
+  transform: rotate(-45deg);
+  transform-origin: center;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  z-index: 1;
+}
+
+.badge-selling .ribbon-text {
+  background: linear-gradient(135deg, #1976D2, #2196F3);
+}
+
+.badge-trending .ribbon-text {
+  background: linear-gradient(135deg, #FF6B35, #FF8E53);
+}
+
+.badge-0 {
+  top: 0;
+  left: 0;
+}
+
+.badge-1 {
+  top: 0;
+  right: 0;
+  transform: scaleX(-1);
+}
+
+.badge-1 .ribbon-text {
+  transform: rotate(-45deg) scaleX(-1);
+  left: -25px;
+}
+
+/* Hover Effects */
+.feature-card:hover .badge-selling .ribbon-text {
+  background: linear-gradient(135deg, #1565C0, #1976D2);
+  transform: rotate(-45deg) scale(1.05);
+  transition: all 0.3s ease;
+}
+
+.feature-card:hover .badge-trending .ribbon-text {
+  background: linear-gradient(135deg, #FF5722, #FF6B35);
+  transform: rotate(-45deg) scale(1.05);
+  transition: all 0.3s ease;
+}
+
+.feature-card:hover .badge-1 .ribbon-text {
+  transform: rotate(-45deg) scaleX(-1) scale(1.05);
+  transition: all 0.3s ease;
+}
+
 /* About Preview Section */
 .about-preview {
   background: 

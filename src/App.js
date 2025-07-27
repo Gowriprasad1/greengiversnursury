@@ -9,6 +9,7 @@ import AboutNursery from './pages/AboutNursery';
 import Collections from './pages/Collections';
 import MeetUs from './pages/MeetUs';
 import Admin from './pages/Admin';
+import NotFound from './pages/NotFound';
 import './App.css';
 
 function App() {
@@ -24,6 +25,7 @@ function App() {
             <Route path="/collections" element={<Collections />} />
             <Route path="/meet-us" element={<MeetUs />} />
             <Route path="/admin-tarun" element={<Admin />} />
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </main>
         <Toaster

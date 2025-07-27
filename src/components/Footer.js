@@ -47,7 +47,7 @@ const Footer = () => {
         </div>
         
         <div className="footer-bottom">
-          <p>&copy; 2024 Green Givers Nursery. All rights reserved.</p>
+          <p>&copy; 2025 Green Givers Nursery. All rights reserved.</p>
           <p>Designed with 💚 for nature lovers</p>
         </div>
       </div>

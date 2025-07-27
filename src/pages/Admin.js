@@ -431,7 +431,7 @@ const Admin = () => {
               <div className="form-container">
                 <div className="form-header">
                   <h3>{editingPlant ? 'Edit Plant' : 'Add New Plant'}</h3>
-                  <button className="close-btn" onClick={resetForm}>✕</button>
+                  <button className="a-close-btn" onClick={resetForm}>✕</button>
                 </div>
 
                 <form className="plant-form" onSubmit={handleSubmit}>
