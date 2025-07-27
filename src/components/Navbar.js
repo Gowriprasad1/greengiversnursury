@@ -58,6 +58,13 @@ const Navbar = () => {
           >
             My Collections
           </Link>
+          <Link 
+            to="/meet-us" 
+            className={`nav-link ${isActive('/meet-us')}`}
+            onClick={handleNavClick}
+          >
+            Meet Us
+          </Link>
         </div>
         
         <div className={`nav-toggle ${isOpen ? 'active' : ''}`} onClick={toggleMenu}>

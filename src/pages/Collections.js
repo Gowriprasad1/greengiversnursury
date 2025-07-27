@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import toast from 'react-hot-toast';
 import './Collections.css';
 
 const Collections = () => {
@@ -339,10 +340,10 @@ const Collections = () => {
               </div>
             </div>
           </div>
-          <p className="hero-description">
+          {/* <p className="hero-description">
             From indoor beauties to outdoor wonders, explore our carefully curated 
             collection of plants for every space and need.
-          </p>
+          </p> */}
         </div>
       </section>
 
@@ -522,7 +523,10 @@ const Collections = () => {
                     <h2 className="modal-title">Contact Us for {selectedPlant.name}</h2>
                     <form className="contact-form" onSubmit={(e) => {
                       e.preventDefault();
-                      alert('Thank you for your inquiry! We will contact you soon.');
+                      toast.success('🌱 Thank you for your inquiry! We will contact you soon!', {
+                        duration: 4000,
+                        icon: '🌿',
+                      });
                       closeModal();
                     }}>
                       <div className="form-group">

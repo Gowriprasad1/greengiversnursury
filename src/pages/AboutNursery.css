@@ -83,6 +83,44 @@
   font-weight: 500;
 }
 
+/* Mobile Responsive Styles */
+@media (max-width: 768px) {
+  .about-nursery-hero {
+    height: 70vh;
+    padding-top: 100px;
+    background-attachment: scroll;
+  }
+  
+  .about-nursery-hero-content {
+    padding: 0 20px;
+  }
+  
+  .about-nursery-hero h1 {
+    font-size: 2.5rem;
+    margin-bottom: 15px;
+  }
+  
+  .about-nursery-hero p {
+    font-size: 1rem;
+    line-height: 1.6;
+  }
+}
+
+@media (max-width: 480px) {
+  .about-nursery-hero {
+    height: 75vh;
+    padding-top: 120px;
+  }
+  
+  .about-nursery-hero h1 {
+    font-size: 2rem;
+  }
+  
+  .about-nursery-hero p {
+    font-size: 0.9rem;
+  }
+}
+
 /* Catalog Section */
 .catalog {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
