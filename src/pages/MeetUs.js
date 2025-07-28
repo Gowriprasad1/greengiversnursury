@@ -10,7 +10,9 @@ const MeetUs = () => {
     location: '',
     plantInterest: '',
     message: '',
-    visitType: 'consultation'
+    visitType: 'consultation',
+    date: '',
+    time: ''
   });
 
   const handleInputChange = (e) => {
@@ -37,7 +39,7 @@ const MeetUs = () => {
     // Create promise for API call
     const submitPromise = async () => {
       try {
-        const response = await fetch('http://localhost:3001/api/send-visit-email', {
+        const response = await fetch('http://localhost:3001/api/email/visit', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -264,6 +266,43 @@ const MeetUs = () => {
                       onChange={handleInputChange}
                       placeholder="Indoor plants, outdoor plants, etc."
                     />
+                  </div>
+                </div>
+
+                <div className="form-row">
+                  <div className="form-group">
+                    <label htmlFor="date">Preferred Date *</label>
+                    <input
+                      type="date"
+                      id="date"
+                      name="date"
+                      value={formData.date}
+                      onChange={handleInputChange}
+                      min={new Date().toISOString().split('T')[0]}
+                      required
+                    />
+                  </div>
+                  
+                  <div className="form-group">
+                    <label htmlFor="time">Preferred Time *</label>
+                    <select
+                      id="time"
+                      name="time"
+                      value={formData.time}
+                      onChange={handleInputChange}
+                      required
+                    >
+                      <option value="">Select Time</option>
+                      <option value="09:00AM">9:00 AM</option>
+                      <option value="10:00AM">10:00 AM</option>
+                      <option value="11:00AM">11:00 AM</option>
+                      <option value="12:00PM">12:00 PM</option>
+                      <option value="1:00PM">1:00 PM</option>
+                      <option value="2:00PM">2:00 PM</option>
+                      <option value="3:00PM">3:00 PM</option>
+                      <option value="4:00PM">4:00 PM</option>
+                      <option value="5:00PM">5:00 PM</option>
+                    </select>
                   </div>
                 </div>
 

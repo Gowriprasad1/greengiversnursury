@@ -19,23 +19,54 @@ const Collections = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formErrors, setFormErrors] = useState({});
 
-  // Load plants data from API, localStorage, or JSON
+  // Get category icon based on category name
+  const getCategoryIcon = (category) => {
+    const iconMap = {
+      'indoor': '🏠',
+      'outdoor': '🌳',
+      'flowering': '🌸',
+      'succulent': '🌵',
+      'herb': '🌿',
+      'tree': '🌲',
+      'shrub': '🌱',
+      'vine': '🍃',
+      'fern': '🌾',
+      'palm': '🌴',
+      'fruit': '🍎',
+      'vegetable': '🥕',
+      'flower': '🌺',
+      'medicinal': '🌿',
+      'aromatic': '🌿'
+    };
+    return iconMap[category.toLowerCase()] || '🌱';
+  };
+
+  // Load plants data from new MongoDB API
   useEffect(() => {
     const loadPlantsData = async () => {
       try {
-        // First try to load from API server (most up-to-date)
-        const response = await fetch('http://localhost:3001/api/plants');
+        // Load from new MongoDB API
+        const response = await fetch('http://localhost:3001/api/products');
         if (response.ok) {
           const data = await response.json();
-          setPlants(data.plants || []);
-          setCategories([
-            { id: 'all', name: 'All Plants', icon: '🌿' },
-            ...data.categories || []
-          ]);
-          return;
+          if (data.success) {
+            setPlants(data.data || []);
+            // Extract unique categories from plants
+            const uniqueCategories = [...new Set(data.data.map(plant => plant.category))];
+            const categoryObjects = uniqueCategories.map(cat => ({
+              id: cat,
+              name: cat.charAt(0).toUpperCase() + cat.slice(1),
+              icon: getCategoryIcon(cat)
+            }));
+            setCategories([
+              { id: 'all', name: 'All Plants', icon: '🌿' },
+              ...categoryObjects
+            ]);
+            return;
+          }
         }
       } catch (apiError) {
-        console.log('API server not available, trying localStorage...');
+        console.log('MongoDB API not available, trying localStorage...');
       }
 
       try {
@@ -205,7 +236,7 @@ const Collections = () => {
       name: 'Sunflower',
       category: 'flowers',
       price: '₹399',
-      image: 'https://images.unsplash.com/photo-1470509037663-253afd7f0f51?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80',
+      image: 'https://images.unsplash.com/photo-1470509037663-97f2360af2e4?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80',
       description: 'Tall, cheerful yellow flowers',
       details: 'Sunflowers are iconic tall flowers that can grow 6-10 feet high. They need full sun and well-drained soil. These cheerful flowers follow the sun throughout the day and produce edible seeds. Perfect for creating natural privacy screens.'
     },
@@ -302,7 +333,7 @@ const Collections = () => {
       id: 25,
       name: 'Japanese Maple (Acer Palmatum)',
       category: 'outdoor',
-      image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80',
+      image: 'https://images.unsplash.com/photo-1507003211169-0e82375c9371?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80',
       description: 'Delicate red foliage, stunning autumn colors',
       details: 'Acer Palmatum, Japanese Maple, offers delicate, deeply lobed leaves in shades of red, orange, and green. This ornamental tree provides spectacular autumn color and graceful form. Perfect for zen gardens and landscape focal points.'
     },
@@ -484,7 +515,7 @@ const Collections = () => {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch('http://localhost:3001/api/send-purchase-email', {
+      const response = await fetch('http://localhost:3001/api/email/purchase', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

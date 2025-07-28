@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import toast from 'react-hot-toast';
 import './Admin.css';
 
 const Admin = () => {
   const [plants, setPlants] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingPlant, setEditingPlant] = useState(null);
   const [formData, setFormData] = useState({
@@ -41,30 +42,40 @@ const Admin = () => {
     medicinal: false
   });
 
-  // Load plants data
-  useEffect(() => {
-    loadPlantsData();
-  }, []);
 
-  const loadPlantsData = async () => {
+  const loadPlantsData = useCallback(async () => {
     try {
-      // Try to load from API server first
-      const response = await fetch('http://localhost:3001/api/plants');
+      // Set predefined categories that match backend enum
+      const predefinedCategories = [
+        { id: 'Avenue Trees', name: 'Avenue Trees', icon: '🌳' },
+        { id: 'Fruit Plants', name: 'Fruit Plants', icon: '🍎' },
+        { id: 'Flower Plants', name: 'Flower Plants', icon: '🌸' },
+        { id: 'Ornamental Plants', name: 'Ornamental Plants', icon: '🌺' },
+        { id: 'Indoor Plants', name: 'Indoor Plants', icon: '🏠' },
+        { id: 'Outdoor Plants', name: 'Outdoor Plants', icon: '🌳' },
+        { id: 'Herbal Plants', name: 'Herbal Plants', icon: '🌿' },
+        { id: 'Bonsai & Specialty', name: 'Bonsai & Specialty', icon: '🌲' },
+        { id: 'Wood Plants', name: 'Wood Plants', icon: '🌴' },
+        { id: 'Lawn Grass', name: 'Lawn Grass', icon: '🌱' }
+      ];
+      setCategories(predefinedCategories);
+
+      // Try to load from MongoDB API first (production/development)
+      const response = await fetch('http://localhost:3001/api/products');
       if (response.ok) {
         const data = await response.json();
-        setPlants(data.plants || []);
-        setCategories([
-          { id: 'all', name: 'All Plants', icon: '🌿' },
-          ...data.categories || []
-        ]);
-        toast.success('🌱 Loaded plants data from server!', {
-          duration: 2000,
-          icon: '🔄',
-        });
-        return;
+        if (data.success) {
+          setPlants(data.data || []);
+          setLoading(false);
+          toast.success('🌱 Loaded plants data from database!', {
+            duration: 2000,
+            icon: '🔄',
+          });
+          return;
+        }
       }
     } catch (apiError) {
-      console.log('API server not available, trying localStorage...');
+      console.log('MongoDB API not available, trying fallback...');
     }
 
     try {
@@ -103,8 +114,14 @@ const Admin = () => {
     } catch (error) {
       console.error('Error loading plants data:', error);
       toast.error('Failed to load plants data');
+      setLoading(false);
     }
-  };
+  }, []);
+
+  // Load plants data on component mount
+  useEffect(() => {
+    loadPlantsData();
+  }, [loadPlantsData]);
 
   // Save data to localStorage for persistence
   const saveToLocalStorage = (plantsData, categoriesData) => {
@@ -208,13 +225,13 @@ const Admin = () => {
     };
 
     try {
-      // Try to save to API server first
+      // Try to save to MongoDB API first
       let apiSuccess = false;
       
       if (editingPlant) {
         // Update existing plant via API
         try {
-          const response = await fetch(`http://localhost:3001/api/plants/${editingPlant.id}`, {
+          const response = await fetch(`http://localhost:3001/api/products/${editingPlant._id}`, {
             method: 'PUT',
             headers: {
               'Content-Type': 'application/json',
@@ -224,24 +241,26 @@ const Admin = () => {
           
           if (response.ok) {
             const result = await response.json();
-            const updatedPlants = plants.map(plant => 
-              plant.id === editingPlant.id ? result.plant : plant
-            );
-            setPlants(updatedPlants);
-            apiSuccess = true;
-            
-            toast.success('🌱 Plant updated in database!', {
-              duration: 3000,
-              icon: '✅',
-            });
+            if (result.success) {
+              const updatedPlants = plants.map(plant => 
+                (plant._id || plant.id) === (editingPlant._id || editingPlant.id) ? result.data : plant
+              );
+              setPlants(updatedPlants);
+              apiSuccess = true;
+              
+              toast.success('🌱 Plant updated in database!', {
+                duration: 3000,
+                icon: '✅',
+              });
+            }
           }
         } catch (apiError) {
-          console.log('API update failed, using localStorage...');
+          console.log('MongoDB API update failed, using localStorage...');
         }
       } else {
         // Add new plant via API
         try {
-          const response = await fetch('http://localhost:3001/api/plants', {
+          const response = await fetch('http://localhost:3001/api/products', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -251,17 +270,19 @@ const Admin = () => {
           
           if (response.ok) {
             const result = await response.json();
-            const updatedPlants = [...plants, result.plant];
-            setPlants(updatedPlants);
-            apiSuccess = true;
-            
-            toast.success('🌿 Plant added to database!', {
-              duration: 3000,
-              icon: '🎉',
-            });
+            if (result.success) {
+              const updatedPlants = [...plants, result.data];
+              setPlants(updatedPlants);
+              apiSuccess = true;
+              
+              toast.success('🌿 Plant added to database!', {
+                duration: 3000,
+                icon: '🎉',
+              });
+            }
           }
         } catch (apiError) {
-          console.log('API add failed, using localStorage...');
+          console.log('MongoDB API add failed, using localStorage...');
         }
       }
       
@@ -270,7 +291,7 @@ const Admin = () => {
         let updatedPlants;
         if (editingPlant) {
           updatedPlants = plants.map(plant => 
-            plant.id === editingPlant.id ? plantData : plant
+            (plant._id || plant.id) === (editingPlant._id || editingPlant.id) ? plantData : plant
           );
           toast.success('🌱 Plant updated locally!', {
             duration: 3000,
@@ -321,24 +342,26 @@ const Admin = () => {
   const handleDelete = async (plantId) => {
     if (window.confirm('Are you sure you want to delete this plant?')) {
       try {
-        // Try to delete via API first
+        // Try to delete via MongoDB API first
         let apiSuccess = false;
         
         try {
-          const response = await fetch(`http://localhost:3001/api/plants/${plantId}`, {
+          const response = await fetch(`http://localhost:3001/api/products/${plantId}`, {
             method: 'DELETE'
           });
           
           if (response.ok) {
-            await response.json(); // Consume response
-            const updatedPlants = plants.filter(plant => plant.id !== plantId);
-            setPlants(updatedPlants);
-            apiSuccess = true;
-            
-            toast.success('🗑️ Plant deleted from database!', {
-              duration: 3000,
-              icon: '✅',
-            });
+            const result = await response.json();
+            if (result.success) {
+              const updatedPlants = plants.filter(plant => plant._id !== plantId);
+              setPlants(updatedPlants);
+              apiSuccess = true;
+              
+              toast.success('🗑️ Plant deleted from database!', {
+                duration: 3000,
+                icon: '✅',
+              });
+            }
           }
         } catch (apiError) {
           console.log('API delete failed, using localStorage...');
@@ -700,17 +723,28 @@ const Admin = () => {
               <h3>Current Plants ({plants.length})</h3>
             </div>
             
-            <div className="plants-grid">
-              {plants.map(plant => (
-                <div key={plant.id} className="plant-admin-card">
+            {loading ? (
+              <div className="loading-message">
+                <p>🌱 Loading plants...</p>
+              </div>
+            ) : (
+              <div className="plants-grid">
+                {plants && plants.filter(plant => plant && (plant.id || plant._id)).map(plant => (
+                <div key={plant.id || plant._id} className="plant-admin-card">
                   <div className="plant-image">
-                    <img src={plant.image} alt={plant.name} />
-                    <div className="plant-category">{plant.category}</div>
+                    <img 
+                      src={plant.image || '/placeholder-plant.jpg'} 
+                      alt={plant.name || 'Plant'} 
+                      onError={(e) => {
+                        e.target.src = 'https://via.placeholder.com/200x200/4CAF50/white?text=🌱';
+                      }}
+                    />
+                    <div className="plant-category">{plant.category || 'Unknown'}</div>
                   </div>
                   <div className="plant-info">
-                    <h4>{plant.name}</h4>
-                    <p className="plant-price">{plant.price}</p>
-                    <p className="plant-description">{plant.description}</p>
+                    <h4>{plant.name || 'Unnamed Plant'}</h4>
+                    <p className="plant-price">₹{plant.price || '0'}</p>
+                    <p className="plant-description">{plant.description || 'No description available'}</p>
                     <div className="plant-properties">
                       {plant.airPurifying && <span className="property">🌬️ Air Purifying</span>}
                       {plant.petFriendly && <span className="property">🐕 Pet Friendly</span>}
@@ -726,14 +760,15 @@ const Admin = () => {
                     </button>
                     <button 
                       className="delete-btn"
-                      onClick={() => handleDelete(plant.id)}
+                      onClick={() => handleDelete(plant._id || plant.id)}
                     >
                       🗑️ Delete
                     </button>
                   </div>
                 </div>
               ))}
-            </div>
+              </div>
+            )}
           </div>
         </div>
       </section>
