@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import toast from 'react-hot-toast';
+import toast, { Toaster } from 'react-hot-toast';
+import { getApiUrl, getImageUrl, apiRequest } from '../config/api';
 import './Collections.css';
 
 const Collections = () => {
@@ -18,36 +19,37 @@ const Collections = () => {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formErrors, setFormErrors] = useState({});
+  const [loading, setLoading] = useState(true);
 
   // Helper function to get proper image URL
-  const getImageUrl = (imageUrl) => {
-    if (!imageUrl) {
-      return 'https://via.placeholder.com/400x300/4CAF50/white?text=🌱+Plant+Image';
-    }
+  // const getImageUrl = (imageUrl) => {
+  //   if (!imageUrl) {
+  //     return 'https://via.placeholder.com/400x300/4CAF50/white?text=🌱+Plant+Image';
+  //   }
     
-    // If it's already a full URL, return as is
-    if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
-      return imageUrl;
-    }
+  //   // If it's already a full URL, return as is
+  //   if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
+  //     return imageUrl;
+  //   }
     
-    // If it starts with /api/images/, prepend backend URL
-    if (imageUrl.startsWith('/api/images/')) {
-      return `http://localhost:3001${imageUrl}`;
-    }
+  //   // If it starts with /api/images/, prepend backend URL
+  //   if (imageUrl.startsWith('/api/images/')) {
+  //     return `http://localhost:3001${imageUrl}`;
+  //   }
     
-    // If it starts with /uploads/, prepend backend URL
-    if (imageUrl.startsWith('/uploads/')) {
-      return `http://localhost:3001${imageUrl}`;
-    }
+  //   // If it starts with /uploads/, prepend backend URL
+  //   if (imageUrl.startsWith('/uploads/')) {
+  //     return `http://localhost:3001${imageUrl}`;
+  //   }
     
-    // If it's just a filename, construct the full URL
-    if (!imageUrl.includes('/')) {
-      return `http://localhost:3001/api/images/${imageUrl}`;
-    }
+  //   // If it's just a filename, construct the full URL
+  //   if (!imageUrl.includes('/')) {
+  //     return `http://localhost:3001/api/images/${imageUrl}`;
+  //   }
     
-    // Fallback to placeholder
-    return 'https://via.placeholder.com/400x300/4CAF50/white?text=🌱+Plant+Image';
-  };
+  //   // Fallback to placeholder
+  //   return 'https://via.placeholder.com/400x300/4CAF50/white?text=🌱+Plant+Image';
+  // };
 
   // Get category icon based on category name
   const getCategoryIcon = (category) => {
@@ -76,61 +78,29 @@ const Collections = () => {
     const loadPlantsData = async () => {
       try {
         // Load from new MongoDB API
-        const response = await fetch('http://localhost:3001/api/products');
-        if (response.ok) {
-          const data = await response.json();
-          if (data.success) {
-            setPlants(data.data || []);
-            // Extract unique categories from plants
-            const uniqueCategories = [...new Set(data.data.map(plant => plant.category))];
-            const categoryObjects = uniqueCategories.map(cat => ({
-              id: cat,
-              name: cat.charAt(0).toUpperCase() + cat.slice(1),
-              icon: getCategoryIcon(cat)
-            }));
-            setCategories([
-              { id: 'all', name: 'All Plants', icon: '🌿' },
-              ...categoryObjects
-            ]);
-            return;
-          }
-        }
-      } catch (apiError) {
-        console.log('MongoDB API not available, trying localStorage...');
-      }
-
-      try {
-        // Fallback to localStorage (admin updates when offline)
-        const savedPlants = localStorage.getItem('nursery_plants_data');
-        if (savedPlants) {
-          const savedData = JSON.parse(savedPlants);
-          setPlants(savedData.plants || []);
+        const data = await apiRequest('/api/products');
+        if (data.success && data.data) {
+          setPlants(data.data);
+          // Extract unique categories from plants
+          const uniqueCategories = [...new Set(data.data.map(plant => plant.category))];
+          const categoryObjects = uniqueCategories.map(cat => ({
+            id: cat,
+            name: cat.charAt(0).toUpperCase() + cat.slice(1),
+            icon: getCategoryIcon(cat)
+          }));
           setCategories([
             { id: 'all', name: 'All Plants', icon: '🌿' },
-            ...savedData.categories || []
+            ...categoryObjects
           ]);
-          return;
+        } else {
+          console.error('Invalid data structure:', data);
+          toast.error('Failed to load plants data');
         }
-
-        // Final fallback to JSON file
-        const response = await fetch('/data/plants.json');
-        const data = await response.json();
-        setPlants(data.plants || []);
-        setCategories([
-          { id: 'all', name: 'All Plants', icon: '🌿' },
-          ...data.categories || []
-        ]);
       } catch (error) {
-        console.error('Error loading plants data:', error);
-        // Hardcoded fallback if everything fails
-        setCategories([
-          { id: 'all', name: 'All Plants', icon: '🌿' },
-          { id: 'indoor', name: 'Indoor Plants', icon: '🏠' },
-          { id: 'outdoor', name: 'Outdoor Plants', icon: '🌳' },
-          { id: 'flowering', name: 'Flowering Plants', icon: '🌸' },
-          { id: 'succulents', name: 'Succulents', icon: '🌵' },
-          { id: 'herbs', name: 'Herbs', icon: '🌿' }
-        ]);
+        console.error('Error fetching plants:', error);
+        toast.error('Failed to load plants. Please try again later.');
+      } finally {
+        setLoading(false);
       }
     };
     loadPlantsData();
@@ -268,7 +238,7 @@ const Collections = () => {
       price: '₹399',
       image: 'https://images.unsplash.com/photo-1470509037663-97f2360af2e4?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80',
       description: 'Tall, cheerful yellow flowers',
-      details: 'Sunflowers are iconic tall flowers that can grow 6-10 feet high. They need full sun and well-drained soil. These cheerful flowers follow the sun throughout the day and produce edible seeds. Perfect for creating natural privacy screens.'
+      details: 'Sunflowers are iconic tall flowers that can grow 6-10 feet high. They need full sun and well-draining soil. These cheerful flowers follow the sun throughout the day and produce edible seeds. Perfect for creating natural privacy screens.'
     },
     {
       id: 15,
@@ -545,20 +515,22 @@ const Collections = () => {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch('http://localhost:3001/api/email/purchase', {
+      const response = await fetch(getApiUrl('/api/email/purchase'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          formData: contactFormData,
-          plantDetails: {
-            name: selectedPlant.name,
-            category: selectedPlant.category,
-            price: selectedPlant.price,
-            image: selectedPlant.image
-          }
-        }),
+          customerName: contactFormData.name,
+          customerEmail: contactFormData.email,
+          customerPhone: contactFormData.phone,
+          plantName: selectedPlant.name,
+          plantPrice: selectedPlant.price,
+          plantCategory: selectedPlant.category,
+          plantImage: selectedPlant.image,
+          quantity: contactFormData.quantity,
+          message: contactFormData.message
+        })
       });
 
       const result = await response.json();

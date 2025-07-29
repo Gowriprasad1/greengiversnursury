@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import toast from 'react-hot-toast';
+import { getApiUrl, getImageUrl, apiRequest } from '../config/api';
 import './Admin.css';
 
 const Admin = () => {

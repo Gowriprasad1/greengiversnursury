@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import toast from 'react-hot-toast';
+import { getApiUrl } from '../config/api';
 import './MeetUs.css';
 
 const MeetUs = () => {
@@ -39,7 +40,7 @@ const MeetUs = () => {
     // Create promise for API call
     const submitPromise = async () => {
       try {
-        const response = await fetch('http://localhost:3001/api/email/visit', {
+        const response = await fetch(getApiUrl('/api/email/visit'), {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
