@@ -1,6 +1,59 @@
 const express = require('express');
 const nodemailer = require('nodemailer');
+const { getGridFSBucket } = require('../config/gridfs');
 const router = express.Router();
+
+// Helper function to convert GridFS image to base64 for email
+const getImageAsBase64 = async (imageUrl) => {
+  try {
+    // If it's already a full HTTP URL, return as is (for URL-based images)
+    if (imageUrl && (imageUrl.startsWith('http://') || imageUrl.startsWith('https://'))) {
+      return imageUrl;
+    }
+    
+    // If it's a GridFS image path like /api/images/filename.webp
+    if (imageUrl && imageUrl.startsWith('/api/images/')) {
+      const filename = imageUrl.replace('/api/images/', '');
+      const gridfsBucket = getGridFSBucket();
+      
+      // Check if file exists
+      const files = await gridfsBucket.find({ filename }).toArray();
+      if (!files || files.length === 0) {
+        return 'https://via.placeholder.com/150x150/4CAF50/white?text=🌱';
+      }
+      
+      const file = files[0];
+      const contentType = file.contentType || file.metadata?.contentType || 'image/jpeg';
+      
+      // Create download stream and convert to base64
+      const downloadStream = gridfsBucket.openDownloadStreamByName(filename);
+      const chunks = [];
+      
+      return new Promise((resolve, reject) => {
+        downloadStream.on('data', (chunk) => {
+          chunks.push(chunk);
+        });
+        
+        downloadStream.on('end', () => {
+          const buffer = Buffer.concat(chunks);
+          const base64 = buffer.toString('base64');
+          resolve(`data:${contentType};base64,${base64}`);
+        });
+        
+        downloadStream.on('error', (error) => {
+          console.error('Error converting image to base64:', error);
+          resolve('https://via.placeholder.com/150x150/4CAF50/white?text=🌱');
+        });
+      });
+    }
+    
+    // Fallback for other cases
+    return 'https://via.placeholder.com/150x150/4CAF50/white?text=🌱';
+  } catch (error) {
+    console.error('Error in getImageAsBase64:', error);
+    return 'https://via.placeholder.com/150x150/4CAF50/white?text=🌱';
+  }
+};
 
 // Create transporter for email
 const createTransporter = () => {
@@ -70,6 +123,10 @@ router.post('/purchase', async (req, res) => {
     const { name: customerName, email, phone, quantity, message } = formData;
     const { name: productName, image: productImage, price, category } = plantDetails;
 
+    // Convert image to base64 for email embedding
+    const emailImageSrc = await getImageAsBase64(productImage);
+    console.log('Email image source:', emailImageSrc.substring(0, 50) + '...');
+
     const transporter = createTransporter();
 
     const mailOptions = {
@@ -85,7 +142,7 @@ router.post('/purchase', async (req, res) => {
             <h3 style="color: #2E7D32; margin-top: 0;">📦 Product Details</h3>
             <div style="display: flex; gap: 20px; align-items: center;">
               <div style="flex-shrink: 0;">
-                <img src="${productImage}" alt="${productName}" style="width: 150px; height: 150px; object-fit: cover; border-radius: 8px; border: 2px solid #E8F5E8;" />
+                <img src="${emailImageSrc}" alt="${productName}" style="width: 150px; height: 150px; object-fit: cover; border-radius: 8px; border: 2px solid #E8F5E8;" />
               </div>
               <div style="flex: 1;">
                 <h4 style="color: #1B5E20; margin: 0 0 10px 0;">${productName}</h4>

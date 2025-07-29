@@ -24,10 +24,23 @@ const productSchema = new mongoose.Schema({
     type: Number,
     min: [0, 'Original price cannot be negative']
   },
+  // Enhanced image handling - supports both URL and GridFS
   image: {
     type: String,
     required: [true, 'Product image is required'],
     trim: true
+  },
+  imageType: {
+    type: String,
+    enum: ['url', 'gridfs'],
+    default: 'url'
+  },
+  imageMetadata: {
+    filename: String,
+    fileId: String,
+    originalName: String,
+    size: Number,
+    contentType: String
   },
   description: {
     type: String,

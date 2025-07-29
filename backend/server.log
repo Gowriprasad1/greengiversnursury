@@ -1,0 +1,40 @@
+(node:94872) [MONGODB DRIVER] Warning: useNewUrlParser is a deprecated option: useNewUrlParser has no effect since Node.js Driver version 4.0.0 and will be removed in the next major version
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:94872) [MONGODB DRIVER] Warning: useUnifiedTopology is a deprecated option: useUnifiedTopology has no effect since Node.js Driver version 4.0.0 and will be removed in the next major version
+
+🌱 Green Givers Nursery Backend Server
+🚀 Server running on port 3001
+🌍 Environment: development
+📡 API Base URL: http://localhost:3001/api
+🔗 Health Check: http://localhost:3001/api/health
+  
+✅ MongoDB Connected: ac-nn50sqi-shard-00-00.18xjwxd.mongodb.net
+📊 Database: test
+✅ GridFS initialized successfully
+🚀 All systems initialized successfully
+Received request body: {
+  formData: {
+    name: 'Hariprasa Gembali',
+    email: 'gembalihariprasad944@gmail.com',
+    phone: '8688520261',
+    quantity: 1,
+    message: ''
+  },
+  plantDetails: {
+    name: 'Baby banana plant',
+    category: 'Outdoor Plants',
+    price: 200,
+    image: '/api/images/d55ebcb8378e7eb4cd0325c4b48b8738.webp'
+  }
+}
+Email image source: data:image/webp;base64,UklGRrhXAgBXRUJQVlA4WAoAAAA...
+Retrieved file: {
+  filename: 'd55ebcb8378e7eb4cd0325c4b48b8738.webp',
+  contentType: undefined,
+  metadata: {
+    originalName: 'ConvertOut-Resized-imgonline-com-ua-compressed-EWdwWj2Taxhpa.webp',
+    uploadDate: 2025-07-29T15:26:52.099Z,
+    contentType: 'image/webp'
+  },
+  length: 153536
+}

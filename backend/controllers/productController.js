@@ -1,5 +1,18 @@
 const Product = require('../models/Product');
 
+// Helper function to process image URL based on type
+const processImageUrl = (product) => {
+  if (!product.image) return product;
+  
+  // If it's a GridFS image, ensure it has the correct API path
+  if (product.imageType === 'gridfs' && product.imageMetadata?.filename) {
+    product.image = `/api/images/${product.imageMetadata.filename}`;
+  }
+  // If it's a URL type, keep as is
+  
+  return product;
+};
+
 // @desc    Get all products
 // @route   GET /api/products
 // @access  Public
@@ -29,10 +42,13 @@ const getProducts = async (req, res) => {
       .sort({ createdAt: -1 })
       .lean();
 
+    // Process image URLs for each product
+    const processedProducts = products.map(product => processImageUrl(product));
+
     res.status(200).json({
       success: true,
-      count: products.length,
-      data: products
+      count: processedProducts.length,
+      data: processedProducts
     });
   } catch (error) {
     console.error('Error fetching products:', error);

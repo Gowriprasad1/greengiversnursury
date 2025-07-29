@@ -6,19 +6,44 @@ require('dotenv').config();
 
 // Import database connection
 const connectDB = require('./config/database');
+const { initGridFS } = require('./config/gridfs');
 
 // Import routes
 const productRoutes = require('./routes/productRoutes');
 const emailRoutes = require('./routes/emailRoutes');
+const imageRoutes = require('./routes/imageRoutes');
 
 // Initialize express app
 const app = express();
 
-// Connect to MongoDB
-connectDB();
+// Connect to MongoDB and initialize GridFS
+const startServer = async () => {
+  try {
+    await connectDB();
+    await initGridFS();
+    console.log('🚀 All systems initialized successfully');
+  } catch (error) {
+    console.error('❌ Server initialization failed:', error);
+    process.exit(1);
+  }
+};
 
-// Security middleware
-app.use(helmet());
+// Start the server
+startServer();
+
+// Security middleware with updated CSP for images
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      imgSrc: ["'self'", "data:", "blob:", "http://localhost:3000", "http://localhost:3001"],
+      scriptSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      connectSrc: ["'self'", "http://localhost:3000", "http://localhost:3001"]
+    }
+  },
+  crossOriginResourcePolicy: { policy: "cross-origin" }
+}));
 
 // Rate limiting
 const limiter = rateLimit({
@@ -46,6 +71,7 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 // API Routes
 app.use('/api/products', productRoutes);
 app.use('/api/email', emailRoutes);
+app.use('/api/images', imageRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {

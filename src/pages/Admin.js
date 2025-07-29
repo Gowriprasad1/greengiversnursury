@@ -6,8 +6,45 @@ const Admin = () => {
   const [plants, setPlants] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  // Helper function to get proper image URL
+  const getImageUrl = (imageUrl) => {
+    if (!imageUrl) {
+      return 'https://via.placeholder.com/400x300/4CAF50/white?text=🌱+Plant+Image';
+    }
+    
+    // If it's already a full URL, return as is
+    if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
+      return imageUrl;
+    }
+    
+    // If it starts with /api/images/, prepend backend URL
+    if (imageUrl.startsWith('/api/images/')) {
+      return `http://localhost:3001${imageUrl}`;
+    }
+    
+    // If it starts with /uploads/, prepend backend URL
+    if (imageUrl.startsWith('/uploads/')) {
+      return `http://localhost:3001${imageUrl}`;
+    }
+    
+    // If it's just a filename, construct the full URL
+    if (!imageUrl.includes('/')) {
+      return `http://localhost:3001/api/images/${imageUrl}`;
+    }
+    
+    // Fallback to placeholder
+    return 'https://via.placeholder.com/400x300/4CAF50/white?text=🌱+Plant+Image';
+  };
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingPlant, setEditingPlant] = useState(null);
+  
+  // Enhanced image handling state
+  const [imageUploadType, setImageUploadType] = useState('url'); // 'url' or 'file'
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState('');
+  const [uploadingImage, setUploadingImage] = useState(false);
+  
   const [formData, setFormData] = useState({
     name: '',
     category: 'indoor',
@@ -118,6 +155,70 @@ const Admin = () => {
     }
   }, []);
 
+  // Enhanced Image Handling Functions
+  const handleImageTypeChange = (type) => {
+    setImageUploadType(type);
+    setSelectedFile(null);
+    setImagePreview('');
+    if (type === 'url') {
+      setFormData(prev => ({ ...prev, image: '' }));
+    }
+  };
+
+  const handleFileSelect = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        toast.error('Please select an image file');
+        return;
+      }
+      
+      // Validate file size (5MB limit)
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error('Image size should be less than 5MB');
+        return;
+      }
+      
+      setSelectedFile(file);
+      
+      // Create preview
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setImagePreview(e.target.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const uploadImageToGridFS = async (file) => {
+    const formData = new FormData();
+    formData.append('image', file);
+    
+    try {
+      setUploadingImage(true);
+      const response = await fetch('http://localhost:3001/api/images/upload', {
+        method: 'POST',
+        body: formData,
+      });
+      
+      const result = await response.json();
+      
+      if (result.success) {
+        toast.success('Image uploaded successfully!');
+        return result.data;
+      } else {
+        throw new Error(result.message || 'Upload failed');
+      }
+    } catch (error) {
+      console.error('Image upload error:', error);
+      toast.error('Failed to upload image: ' + error.message);
+      throw error;
+    } finally {
+      setUploadingImage(false);
+    }
+  };
+
   // Load plants data on component mount
   useEffect(() => {
     loadPlantsData();
@@ -210,6 +311,13 @@ const Admin = () => {
       edible: false,
       medicinal: false
     });
+    
+    // Reset image handling state
+    setImageUploadType('url');
+    setSelectedFile(null);
+    setImagePreview('');
+    setUploadingImage(false);
+    
     setEditingPlant(null);
     setShowAddForm(false);
   };
@@ -217,12 +325,36 @@ const Admin = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    const plantData = {
-      ...formData,
-      id: editingPlant ? editingPlant.id : Date.now(),
-      createdAt: editingPlant ? editingPlant.createdAt : new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    };
+    try {
+      let finalImageData = {
+        image: formData.image,
+        imageType: 'url',
+        imageMetadata: {}
+      };
+      
+      // Handle file upload if a file is selected
+      if (imageUploadType === 'file' && selectedFile) {
+        const uploadResult = await uploadImageToGridFS(selectedFile);
+        finalImageData = {
+          image: uploadResult.imageUrl,
+          imageType: 'gridfs',
+          imageMetadata: {
+            filename: uploadResult.filename,
+            fileId: uploadResult.fileId,
+            originalName: uploadResult.originalName,
+            size: uploadResult.size,
+            contentType: uploadResult.contentType
+          }
+        };
+      }
+      
+      const plantData = {
+        ...formData,
+        ...finalImageData,
+        id: editingPlant ? editingPlant.id : Date.now(),
+        createdAt: editingPlant ? editingPlant.createdAt : new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
 
     try {
       // Try to save to MongoDB API first
@@ -327,9 +459,14 @@ const Admin = () => {
       }
       
       resetForm();
+    } catch (innerError) {
+      console.error('Error saving to API/localStorage:', innerError);
+      toast.error('Failed to save plant to database');
+    }
+    
     } catch (error) {
-      console.error('Error saving plant:', error);
-      toast.error('Failed to save plant');
+      console.error('Error in form submission:', error);
+      toast.error('Failed to process form: ' + error.message);
     }
   };
 
@@ -519,17 +656,85 @@ const Admin = () => {
                         </div>
                       </div>
 
-                      <div className="form-group">
-                        <label htmlFor="image">Image URL *</label>
-                        <input
-                          type="url"
-                          id="image"
-                          name="image"
-                          value={formData.image}
-                          onChange={handleInputChange}
-                          required
-                          placeholder="https://images.unsplash.com/..."
-                        />
+                      {/* Enhanced Image Handling */}
+                      <div className="form-group image-upload-section">
+                        <label>Plant Image *</label>
+                        
+                        {/* Image Upload Type Selector */}
+                        <div className="image-type-selector">
+                          <button
+                            type="button"
+                            className={`type-btn ${imageUploadType === 'url' ? 'active' : ''}`}
+                            onClick={() => handleImageTypeChange('url')}
+                          >
+                            🔗 Image URL
+                          </button>
+                          <button
+                            type="button"
+                            className={`type-btn ${imageUploadType === 'file' ? 'active' : ''}`}
+                            onClick={() => handleImageTypeChange('file')}
+                          >
+                            📁 Upload File
+                          </button>
+                        </div>
+
+                        {/* URL Input */}
+                        {imageUploadType === 'url' && (
+                          <div className="url-input-section">
+                            <input
+                              type="url"
+                              id="image"
+                              name="image"
+                              value={formData.image}
+                              onChange={handleInputChange}
+                              required={imageUploadType === 'url'}
+                              placeholder="https://images.unsplash.com/..."
+                              className="image-url-input"
+                            />
+                          </div>
+                        )}
+
+                        {/* File Upload */}
+                        {imageUploadType === 'file' && (
+                          <div className="file-upload-section">
+                            <input
+                              type="file"
+                              id="imageFile"
+                              accept="image/*"
+                              onChange={handleFileSelect}
+                              className="file-input"
+                              required={imageUploadType === 'file' && !selectedFile}
+                            />
+                            <label htmlFor="imageFile" className="file-input-label">
+                              {selectedFile ? (
+                                <span>📷 {selectedFile.name}</span>
+                              ) : (
+                                <span>📁 Choose Image File (Max 5MB)</span>
+                              )}
+                            </label>
+                            {uploadingImage && (
+                              <div className="upload-progress">
+                                <span>⏳ Uploading image...</span>
+                              </div>
+                            )}
+                          </div>
+                        )}
+
+                        {/* Image Preview */}
+                        {(imagePreview || (imageUploadType === 'url' && formData.image)) && (
+                          <div className="image-preview-section">
+                            <label>Preview:</label>
+                            <div className="image-preview">
+                              <img
+                                src={imagePreview || formData.image}
+                                alt="Plant preview"
+                                onError={(e) => {
+                                  e.target.style.display = 'none';
+                                }}
+                              />
+                            </div>
+                          </div>
+                        )}
                       </div>
 
                       <div className="form-group">
@@ -733,7 +938,7 @@ const Admin = () => {
                 <div key={plant.id || plant._id} className="plant-admin-card">
                   <div className="plant-image">
                     <img 
-                      src={plant.image || '/placeholder-plant.jpg'} 
+                      src={getImageUrl(plant.image)} 
                       alt={plant.name || 'Plant'} 
                       onError={(e) => {
                         e.target.src = 'https://via.placeholder.com/200x200/4CAF50/white?text=🌱';

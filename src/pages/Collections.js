@@ -19,6 +19,36 @@ const Collections = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formErrors, setFormErrors] = useState({});
 
+  // Helper function to get proper image URL
+  const getImageUrl = (imageUrl) => {
+    if (!imageUrl) {
+      return 'https://via.placeholder.com/400x300/4CAF50/white?text=🌱+Plant+Image';
+    }
+    
+    // If it's already a full URL, return as is
+    if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
+      return imageUrl;
+    }
+    
+    // If it starts with /api/images/, prepend backend URL
+    if (imageUrl.startsWith('/api/images/')) {
+      return `http://localhost:3001${imageUrl}`;
+    }
+    
+    // If it starts with /uploads/, prepend backend URL
+    if (imageUrl.startsWith('/uploads/')) {
+      return `http://localhost:3001${imageUrl}`;
+    }
+    
+    // If it's just a filename, construct the full URL
+    if (!imageUrl.includes('/')) {
+      return `http://localhost:3001/api/images/${imageUrl}`;
+    }
+    
+    // Fallback to placeholder
+    return 'https://via.placeholder.com/400x300/4CAF50/white?text=🌱+Plant+Image';
+  };
+
   // Get category icon based on category name
   const getCategoryIcon = (category) => {
     const iconMap = {
@@ -612,10 +642,10 @@ const Collections = () => {
         <div className="container">
           <div className="plants-grid">
             {filteredPlants.map(plant => (
-              <div key={plant.id} className="plant-card">
+              <div key={plant._id || plant.id} className="plant-card">
                 <div className="plant-image">
                   <img 
-                    src={plant.image} 
+                    src={getImageUrl(plant.image)} 
                     alt={plant.name}
                     className="plant-photo"
                     loading="lazy"
@@ -741,7 +771,7 @@ const Collections = () => {
             <div className="modal-body">
               <div className="modal-image">
                 <img 
-                  src={selectedPlant.image} 
+                  src={getImageUrl(selectedPlant.image)} 
                   alt={selectedPlant.name}
                   className="modal-plant-photo"
                 />
@@ -754,6 +784,16 @@ const Collections = () => {
                     <div className="modal-details">
                       <h3>Plant Care Information:</h3>
                       <p>{selectedPlant.details || 'This beautiful plant will make a wonderful addition to your garden. Contact us for specific care instructions and planting tips.'}</p>
+                      {selectedPlant.features && selectedPlant.features.length > 0 && (
+                        <div className="modal-features">
+                          <h4>Key Features:</h4>
+                          <ul>
+                            {selectedPlant.features.map((feature, index) => (
+                              <li key={`feature-${index}`}>{feature}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
                     </div>
                     <div className="modal-actions">
                       <button className="contact-btn" onClick={() => handleContactForPurchase(selectedPlant)}>Contact for Purchase</button>
