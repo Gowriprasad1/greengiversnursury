@@ -119,12 +119,12 @@ router.post('/visit', async (req, res) => {
 router.post('/purchase', async (req, res) => {
   try {
     console.log('Received request body:', req.body);
-    const { formData, plantDetails } = req.body;
-    const { name: customerName, email, phone, quantity, message } = formData;
-    const { name: productName, image: productImage, price, category } = plantDetails;
+    // const { formData, plantDetails } = req.body;
+    const { customerName, customerEmail, customerPhone, quantity, message,plantCategory,plantImage,plantName,plantPrice } = req.body;
+    // const { name: productName, image: productImage, price, category } = plantDetails;
 
     // Convert image to base64 for email embedding
-    const emailImageSrc = await getImageAsBase64(productImage);
+    const emailImageSrc = await getImageAsBase64(plantImage);
     console.log('Email image source:', emailImageSrc.substring(0, 50) + '...');
 
     const transporter = createTransporter();
@@ -142,14 +142,14 @@ router.post('/purchase', async (req, res) => {
             <h3 style="color: #2E7D32; margin-top: 0;">📦 Product Details</h3>
             <div style="display: flex; gap: 20px; align-items: center;">
               <div style="flex-shrink: 0;">
-                <img src="${emailImageSrc}" alt="${productName}" style="width: 150px; height: 150px; object-fit: cover; border-radius: 8px; border: 2px solid #E8F5E8;" />
+                <img src="${emailImageSrc}" alt="${plantName}" style="width: 150px; height: 150px; object-fit: cover; border-radius: 8px; border: 2px solid #E8F5E8;" />
               </div>
               <div style="flex: 1;">
-                <h4 style="color: #1B5E20; margin: 0 0 10px 0;">${productName}</h4>
-                <p style="margin: 5px 0;"><strong>Category:</strong> ${category}</p>
-                <p style="margin: 5px 0;"><strong>Price:</strong> ₹${price}</p>
+                <h4 style="color: #1B5E20; margin: 0 0 10px 0;">${plantName}</h4>
+                <p style="margin: 5px 0;"><strong>Category:</strong> ${plantCategory}</p>
+                <p style="margin: 5px 0;"><strong>Price:</strong> ₹${plantPrice}</p>
                 <p style="margin: 5px 0;"><strong>Quantity Requested:</strong> ${quantity}</p>
-                <p style="margin: 5px 0;"><strong>Total Amount:</strong> ₹${price * quantity}</p>
+                <p style="margin: 5px 0;"><strong>Total Amount:</strong> ₹${plantPrice * quantity}</p>
               </div>
             </div>
           </div>
@@ -158,8 +158,8 @@ router.post('/purchase', async (req, res) => {
           <div style="background: #f5f5f5; padding: 20px; border-radius: 8px; margin: 20px 0;">
             <h3 style="color: #2E7D32; margin-top: 0;">👤 Customer Information</h3>
             <p><strong>Name:</strong> ${customerName}</p>
-            <p><strong>Email:</strong> <a href="mailto:${email}" style="color: #2E7D32;">${email}</a></p>
-            <p><strong>Phone:</strong> ${phone ? `<a href="tel:+91${phone}" style="color: #2E7D32;">+91 ${phone}</a>` : 'Not provided'}</p>
+            <p><strong>Email:</strong> <a href="mailto:${customerEmail}" style="color: #2E7D32;">${customerEmail}</a></p>
+            <p><strong>Phone:</strong> ${customerPhone ? `<a href="tel:+91${customerPhone}" style="color: #2E7D32;">+91 ${customerPhone}</a>` : 'Not provided'}</p>
             ${message ? `<p><strong>Message:</strong> ${message}</p>` : ''}
           </div>
           
