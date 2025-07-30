@@ -19,7 +19,10 @@ const API_CONFIG = {
     IMAGES_UPLOAD: '/api/images/upload',
     IMAGES: '/api/images',
     HEALTH: '/api/health'
-  }
+  },
+
+  //WhatsApp Contact Number
+  WhatsAPPNum : process.env.WhatsAPPNum 
 };
 
 // Helper function to get full API URL

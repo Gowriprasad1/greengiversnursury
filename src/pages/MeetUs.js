@@ -47,22 +47,22 @@ const MeetUs = () => {
           },
           body: JSON.stringify(formData)
         });
-        
+  
         const result = await response.json();
-        
+  
         if (!response.ok) {
           throw new Error(result.error || 'Failed to send email');
         }
-        
+  
         return result;
       } catch (error) {
         console.error('Error sending visit email:', error);
         throw error;
       }
     };
-
+  
     toast.promise(
-      submitPromise(),
+      submitPromise, // <-- Don't call it here
       {
         loading: 'Sending your visit request...',
         success: '🌱 Thank you! We\'ve received your request and will contact you soon!',
@@ -81,10 +81,8 @@ const MeetUs = () => {
           icon: '❌',
         },
       }
-    );
-
-    // Reset form after successful submission
-    submitPromise().then(() => {
+    ).then(() => {
+      // Reset form on success
       setFormData({
         name: '',
         email: '',
@@ -92,13 +90,15 @@ const MeetUs = () => {
         location: '',
         plantInterest: '',
         message: '',
-        visitType: 'consultation'
+        visitType: 'consultation',
+        date: '',
+        time: ''
       });
     }).catch(() => {
-      // Don't reset form on error so user can retry
       console.log('Form not reset due to submission error');
     });
   };
+  
 
   return (
     <div className="meet-us">

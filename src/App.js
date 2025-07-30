@@ -10,6 +10,7 @@ import Collections from './pages/Collections';
 import MeetUs from './pages/MeetUs';
 import Admin from './pages/Admin';
 import NotFound from './pages/NotFound';
+import WhatsAppButton from './pages/WhatsAppButton'; // Import WhatsApp button component
 import './App.css';
 
 function App() {
@@ -43,6 +44,7 @@ function App() {
             },
           }}
         />
+        <WhatsAppButton/>
         <Footer />
       </div>
     </Router>
