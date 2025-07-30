@@ -1,5 +1,5 @@
 import React from 'react';
-import { FaWhatsapp } from 'react-icons/fa'; // WhatsApp icon
+import { FaWhatsapp } from 'react-icons/fa6'; // WhatsApp icon
 
 const WhatsAppButton = () => {
   const phoneNumber = process.env.WHATSAPP_NUMBER; // International format (91 = India)
