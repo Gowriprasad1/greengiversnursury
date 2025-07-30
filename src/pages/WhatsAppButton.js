@@ -2,7 +2,7 @@ import React from 'react';
 import { FaWhatsapp } from 'react-icons/fa6'; // WhatsApp icon
 
 const WhatsAppButton = () => {
-  const phoneNumber = process.env.WHATSAPP_NUMBER; // International format (91 = India)
+  const phoneNumber = process.env.REACT_APP_WHATSAPP_NUMBER; // International format (91 = India)
   const defaultMessage = "Hi, I'm interested in your services!";
   console.log("phoneNumber: ", process.env);
   const whatsappLink = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(defaultMessage)}`;
