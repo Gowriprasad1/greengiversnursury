@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import toast from 'react-hot-toast';
-import { getApiUrl, getImageUrl, apiRequest } from '../config/api';
+import { getApiUrl, getImageUrl } from '../config/api';
 import './Admin.css';
 
 const Admin = () => {
@@ -8,35 +8,7 @@ const Admin = () => {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Helper function to get proper image URL
-  const getImageUrl = (imageUrl) => {
-    if (!imageUrl) {
-      return 'https://via.placeholder.com/400x300/4CAF50/white?text=🌱+Plant+Image';
-    }
-    
-    // If it's already a full URL, return as is
-    if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
-      return imageUrl;
-    }
-    
-    // If it starts with /api/images/, prepend backend URL
-    if (imageUrl.startsWith('/api/images/')) {
-      return `http://localhost:3001${imageUrl}`;
-    }
-    
-    // If it starts with /uploads/, prepend backend URL
-    if (imageUrl.startsWith('/uploads/')) {
-      return `http://localhost:3001${imageUrl}`;
-    }
-    
-    // If it's just a filename, construct the full URL
-    if (!imageUrl.includes('/')) {
-      return `http://localhost:3001/api/images/${imageUrl}`;
-    }
-    
-    // Fallback to placeholder
-    return 'https://via.placeholder.com/400x300/4CAF50/white?text=🌱+Plant+Image';
-  };
+  // Using getImageUrl from api config - no need to redefine
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingPlant, setEditingPlant] = useState(null);
   
@@ -99,7 +71,7 @@ const Admin = () => {
       setCategories(predefinedCategories);
 
       // Try to load from MongoDB API first (production/development)
-      const response = await fetch('http://localhost:3001/api/products');
+      const response = await fetch(getApiUrl('/api/products'));
       if (response.ok) {
         const data = await response.json();
         if (data.success) {
@@ -198,7 +170,7 @@ const Admin = () => {
     
     try {
       setUploadingImage(true);
-      const response = await fetch('http://localhost:3001/api/images/upload', {
+      const response = await fetch(getApiUrl('/api/images/upload'), {
         method: 'POST',
         body: formData,
       });
@@ -364,7 +336,7 @@ const Admin = () => {
       if (editingPlant) {
         // Update existing plant via API
         try {
-          const response = await fetch(`http://localhost:3001/api/products/${editingPlant._id}`, {
+          const response = await fetch(getApiUrl(`/api/products/${editingPlant._id}`), {
             method: 'PUT',
             headers: {
               'Content-Type': 'application/json',
@@ -393,7 +365,7 @@ const Admin = () => {
       } else {
         // Add new plant via API
         try {
-          const response = await fetch('http://localhost:3001/api/products', {
+          const response = await fetch(getApiUrl('/api/products'), {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -484,7 +456,7 @@ const Admin = () => {
         let apiSuccess = false;
         
         try {
-          const response = await fetch(`http://localhost:3001/api/products/${plantId}`, {
+          const response = await fetch(getApiUrl(`/api/products/${plantId}`), {
             method: 'DELETE'
           });
           
