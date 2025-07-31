@@ -1,5 +1,11 @@
 import React, { useState } from 'react';
-import { FaWhatsapp, FaInstagram, FaPlus, FaXmark } from 'react-icons/fa6';
+import {
+  FaWhatsapp,
+  FaInstagram,
+  FaFacebookF,
+  FaXmark,
+  FaCommentDots
+} from 'react-icons/fa6';
 
 const WhatsAppButton = () => {
   const [open, setOpen] = useState(false);
@@ -8,10 +14,28 @@ const WhatsAppButton = () => {
   const defaultMessage = "Hi, I’m looking for more details about your service";
   const whatsappLink = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(defaultMessage)}`;
   const instagramLink = 'https://www.instagram.com/greengiversnursery?igsh=MW9vdXpodzBtcWhnag==';
+  const facebookLink = 'https://www.facebook.com/share/1H4DYadHwq/';
 
   return (
     <div style={styles.container}>
-      {/* Instagram Button */}
+      {/* Facebook */}
+      <a
+        href={facebookLink}
+        target="_blank"
+        rel="noopener noreferrer"
+        style={{
+          ...styles.icon,
+          bottom: '200px',
+          backgroundColor: '#1877F2',
+          opacity: open ? 1 : 0,
+          transform: open ? 'translateY(0)' : 'translateY(20px)',
+          pointerEvents: open ? 'auto' : 'none',
+        }}
+      >
+        <FaFacebookF size={20} />
+      </a>
+
+      {/* Instagram */}
       <a
         href={instagramLink}
         target="_blank"
@@ -28,7 +52,7 @@ const WhatsAppButton = () => {
         <FaInstagram size={20} />
       </a>
 
-      {/* WhatsApp Button */}
+      {/* WhatsApp */}
       <a
         href={whatsappLink}
         target="_blank"
@@ -45,13 +69,17 @@ const WhatsAppButton = () => {
         <FaWhatsapp size={20} />
       </a>
 
-      {/* Toggle Button */}
+      {/* Toggle Chat Button */}
       <button
         onClick={() => setOpen(!open)}
-        style={styles.toggleButton}
-        aria-label="Toggle social menu"
+        style={{
+          ...styles.toggleButton,
+          transform: open ? 'rotate(90deg)' : 'rotate(0deg)',
+          transition: 'transform 0.3s ease',
+        }}
+        aria-label="Toggle chat options"
       >
-        {open ? <FaXmark size={20} /> : <FaPlus size={20} />}
+        {open ? <FaXmark size={20} /> : <FaCommentDots size={20} />}
       </button>
     </div>
   );
@@ -71,12 +99,11 @@ const styles = {
     border: 'none',
     width: '50px',
     height: '50px',
-    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.3)',
+    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
     cursor: 'pointer',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    transition: 'background-color 0.3s ease',
   },
   icon: {
     position: 'absolute',
