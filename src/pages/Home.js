@@ -59,7 +59,7 @@ const Home = () => {
           <div className="container">
             <div className="hero-text">
               <h1 className="hero-title">
-                <span className="highlight">Green Givers</span> Nursery
+                <span className="highlight">The Green Givers</span> Nursery
               </h1>
               <p className="hero-subtitle">
                 "To Plant a garden is to believe in tomorrow"
